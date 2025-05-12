@@ -5,7 +5,8 @@ const config: CapacitorConfig = {
   appName: 'Dog vs Cat Tic Tac Toe',
   webDir: 'dist',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    cleartext: true
   },
   plugins: {
     SplashScreen: {
@@ -13,8 +14,17 @@ const config: CapacitorConfig = {
       backgroundColor: "#3B82F6",
       showSpinner: true,
       androidSpinnerStyle: "large",
-      spinnerColor: "#ffffff"
+      spinnerColor: "#ffffff",
+      splashImmersive: true
+    },
+    StatusBar: {
+      backgroundColor: "#3B82F6",
+      style: "light",
+      overlaysWebView: true
     }
+  },
+  android: {
+    allowMixedContent: true
   }
 };
 
