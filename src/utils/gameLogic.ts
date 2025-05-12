@@ -38,13 +38,13 @@ export const createInitialGameState = (
 export const getDifficultyDollars = (difficulty: GameDifficulty): number => {
   switch (difficulty) {
     case "easy":
-      return 30;
+      return 20;
     case "medium":
-      return 20;
-    case "hard":
       return 15;
+    case "hard":
+      return 10;
     default:
-      return 20;
+      return 15;
   }
 };
 
