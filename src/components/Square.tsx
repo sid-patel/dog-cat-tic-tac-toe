@@ -10,10 +10,10 @@ interface SquareProps {
 const Square: React.FC<SquareProps> = ({ value, onClick, highlight = false }) => {
   return (
     <button
-      className={`w-full h-full aspect-square flex items-center justify-center text-3xl sm:text-4xl 
-        font-bold transition-all duration-200 border border-gray-300 
+      className={`w-full h-full aspect-square flex items-center justify-center text-2xl md:text-4xl 
+        font-bold transition-all duration-200 border border-gray-300 active:bg-gray-200
         ${highlight ? 'bg-yellow-200 animate-pulse' : 'bg-white hover:bg-gray-100'}
-        ${value ? 'cursor-default' : 'cursor-pointer'}`}
+        ${value ? 'cursor-default' : 'cursor-pointer touch-manipulation'}`}
       onClick={onClick}
       disabled={value !== null}
     >
