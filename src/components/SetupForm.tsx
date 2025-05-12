@@ -6,9 +6,9 @@ interface SetupFormProps {
 }
 
 const difficultyOptions: { value: GameDifficulty; label: string }[] = [
-  { value: 'easy', label: 'Easy (20 dollars)' },
-  { value: 'medium', label: 'Medium (15 dollars)' },
-  { value: 'hard', label: 'Hard (10 dollars)' }
+  { value: 'easy', label: 'Easy (20 Moves)' },
+  { value: 'medium', label: 'Medium (15 Moves)' },
+  { value: 'hard', label: 'Hard (10 Moves)' }
 ];
 
 const SetupForm: React.FC<SetupFormProps> = ({ onSubmit }) => {
