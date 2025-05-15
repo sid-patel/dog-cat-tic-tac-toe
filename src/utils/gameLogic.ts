@@ -1,28 +1,32 @@
-import { Player, SquareValue, GameState, GameDifficulty } from "../types";
+import { GameState, GameDifficulty, SquareValue } from '../types';
 
 export const createInitialGameState = (
-  dogName: string,
-  catName: string,
+  player1Name: string,
+  player1Emoji: string,
+  player2Name: string,
+  player2Emoji: string,
   difficulty: GameDifficulty,
   gameMode: "pvp" | "ai",
-  playerRole?: Player
+  playerRole?: 'player1' | 'player2'
 ): GameState => {
   const initialDollars = getDifficultyDollars(difficulty);
   
   return {
     board: Array(5).fill(null).map(() => Array(5).fill(null)),
-    currentPlayer: Math.random() < 0.5 ? "dog" : "cat",
-    dogPlayer: {
-      name: dogName,
+    currentPlayer: Math.random() < 0.5 ? 'player1' : 'player2',
+    player1: {
+      name: player1Name,
+      emoji: player1Emoji,
       dollars: initialDollars,
       stars: 0,
-      isAI: gameMode === "ai" && playerRole === "cat"
+      isAI: gameMode === "ai" && playerRole === "player2"
     },
-    catPlayer: {
-      name: catName,
+    player2: {
+      name: player2Name,
+      emoji: player2Emoji,
       dollars: initialDollars,
       stars: 0,
-      isAI: gameMode === "ai" && playerRole === "dog"
+      isAI: gameMode === "ai" && playerRole === "player1"
     },
     gameStarted: true,
     gameOver: false,
@@ -48,14 +52,14 @@ export const getDifficultyDollars = (difficulty: GameDifficulty): number => {
   }
 };
 
-export const getAIMove = (board: SquareValue[][], player: Player): [number, number] => {
+export const getAIMove = (board: SquareValue[][], playerEmoji: string): [number, number] => {
   // First, try to complete a line if possible
   for (let i = 0; i < board.length; i++) {
     for (let j = 0; j < board[i].length; j++) {
       if (board[i][j] === null) {
         const testBoard = board.map(row => [...row]);
-        testBoard[i][j] = player;
-        if (checkForThreeConnection(testBoard, i, j, player)) {
+        testBoard[i][j] = playerEmoji;
+        if (checkForThreeConnection(testBoard, i, j, playerEmoji)) {
           return [i, j];
         }
       }
@@ -63,14 +67,18 @@ export const getAIMove = (board: SquareValue[][], player: Player): [number, numb
   }
 
   // Then, block opponent's potential three-in-a-row
-  const opponent = player === "dog" ? "cat" : "dog";
   for (let i = 0; i < board.length; i++) {
     for (let j = 0; j < board[i].length; j++) {
       if (board[i][j] === null) {
         const testBoard = board.map(row => [...row]);
-        testBoard[i][j] = opponent;
-        if (checkForThreeConnection(testBoard, i, j, opponent)) {
-          return [i, j];
+        // Try all possible opponent emojis
+        for (const cell of board.flat()) {
+          if (cell && cell !== playerEmoji) {
+            testBoard[i][j] = cell;
+            if (checkForThreeConnection(testBoard, i, j, cell)) {
+              return [i, j];
+            }
+          }
         }
       }
     }
@@ -107,7 +115,7 @@ export const checkForThreeConnection = (
   board: SquareValue[][],
   row: number,
   col: number,
-  player: Player
+  value: string
 ): [number, number][] | null => {
   const directions = [
     [0, 1], // horizontal
@@ -129,7 +137,7 @@ export const checkForThreeConnection = (
         if (
           r >= 0 && r < board.length &&
           c >= 0 && c < board[0].length &&
-          board[r][c] === player
+          board[r][c] === value
         ) {
           connectedSquares.push([r, c]);
           r += dr * multiplier;
@@ -153,23 +161,23 @@ export const isBoardFull = (board: SquareValue[][]): boolean => {
 };
 
 export const checkGameOver = (gameState: GameState): GameState => {
-  const { dogPlayer, catPlayer } = gameState;
+  const { player1, player2 } = gameState;
   
-  if (dogPlayer.dollars <= 0 || catPlayer.dollars <= 0) {
-    let winner: Player | "tie" | null = null;
+  if (player1.dollars <= 0 || player2.dollars <= 0) {
+    let winner: 'player1' | 'player2' | "tie" | null = null;
     
-    if (dogPlayer.dollars <= 0 && catPlayer.dollars <= 0) {
-      if (dogPlayer.stars > catPlayer.stars) {
-        winner = "dog";
-      } else if (catPlayer.stars > dogPlayer.stars) {
-        winner = "cat";
+    if (player1.dollars <= 0 && player2.dollars <= 0) {
+      if (player1.stars > player2.stars) {
+        winner = 'player1';
+      } else if (player2.stars > player1.stars) {
+        winner = 'player2';
       } else {
         winner = "tie";
       }
-    } else if (dogPlayer.dollars <= 0) {
-      winner = "cat";
+    } else if (player1.dollars <= 0) {
+      winner = 'player2';
     } else {
-      winner = "dog";
+      winner = 'player1';
     }
     
     return {
@@ -187,13 +195,13 @@ export const handleTie = (gameState: GameState): GameState => {
   
   return {
     ...gameState,
-    dogPlayer: {
-      ...gameState.dogPlayer,
-      dollars: gameState.dogPlayer.dollars + BONUS_DOLLARS
+    player1: {
+      ...gameState.player1,
+      dollars: gameState.player1.dollars + BONUS_DOLLARS
     },
-    catPlayer: {
-      ...gameState.catPlayer,
-      dollars: gameState.catPlayer.dollars + BONUS_DOLLARS
+    player2: {
+      ...gameState.player2,
+      dollars: gameState.player2.dollars + BONUS_DOLLARS
     },
     gameOver: false,
     winner: null,

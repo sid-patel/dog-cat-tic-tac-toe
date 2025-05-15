@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { 
   GameState, 
-  Player, 
   GameDifficulty, 
   SetupFormValues 
 } from '../types';
@@ -14,12 +13,10 @@ import {
   getAIMove
 } from '../utils/gameLogic';
 
-const DOG_BARK_SOUND = "https://assets.mixkit.co/active_storage/sfx/212/212-preview.mp3";
-const CAT_MEOW_SOUND = "https://assets.mixkit.co/active_storage/sfx/583/583-preview.mp3";
+const MOVE_SOUND = "https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3";
 const REWARD_SOUND = "https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3";
 
-const dogBarkAudio = new Audio(DOG_BARK_SOUND);
-const catMeowAudio = new Audio(CAT_MEOW_SOUND);
+const moveAudio = new Audio(MOVE_SOUND);
 const rewardAudio = new Audio(REWARD_SOUND);
 
 export const useGameState = () => {
@@ -27,8 +24,16 @@ export const useGameState = () => {
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   
   const initGame = useCallback((formValues: SetupFormValues) => {
-    const { dogName, catName, difficulty, gameMode, playerRole } = formValues;
-    const initialState = createInitialGameState(dogName, catName, difficulty, gameMode, playerRole);
+    const { player1Name, player1Emoji, player2Name, player2Emoji, difficulty, gameMode, playerRole } = formValues;
+    const initialState = createInitialGameState(
+      player1Name,
+      player1Emoji,
+      player2Name,
+      player2Emoji,
+      difficulty,
+      gameMode,
+      playerRole
+    );
     setGameState(initialState);
   }, []);
   
@@ -36,11 +41,13 @@ export const useGameState = () => {
     if (!gameState) return;
     
     const initialState = createInitialGameState(
-      gameState.dogPlayer.name,
-      gameState.catPlayer.name,
+      gameState.player1.name,
+      gameState.player1.emoji,
+      gameState.player2.name,
+      gameState.player2.emoji,
       gameState.difficulty,
       gameState.gameMode,
-      gameState.dogPlayer.isAI ? 'cat' : (gameState.catPlayer.isAI ? 'dog' : undefined)
+      gameState.player1.isAI ? 'player2' : (gameState.player2.isAI ? 'player1' : undefined)
     );
     
     setGameState(initialState);
@@ -55,22 +62,18 @@ export const useGameState = () => {
     
     if (gameState.board[row][col] !== null) return;
     
-    const currentPlayerState = gameState.currentPlayer === 'dog' 
-      ? gameState.dogPlayer 
-      : gameState.catPlayer;
+    const currentPlayerState = gameState.currentPlayer === 'player1' 
+      ? gameState.player1 
+      : gameState.player2;
       
     if (currentPlayerState.dollars <= 0) return;
     
     if (soundEnabled) {
-      if (gameState.currentPlayer === 'dog') {
-        dogBarkAudio.play();
-      } else {
-        catMeowAudio.play();
-      }
+      moveAudio.play();
     }
     
     const newBoard = gameState.board.map(row => [...row]);
-    newBoard[row][col] = gameState.currentPlayer;
+    newBoard[row][col] = currentPlayerState.emoji;
     
     let updatedGameState = {
       ...gameState,
@@ -79,17 +82,17 @@ export const useGameState = () => {
         ...gameState.moveHistory, 
         {player: gameState.currentPlayer, position: [row, col] as [number, number]}
       ],
-      dogPlayer: {
-        ...gameState.dogPlayer,
-        dollars: gameState.currentPlayer === 'dog' 
-          ? gameState.dogPlayer.dollars - 1 
-          : gameState.dogPlayer.dollars
+      player1: {
+        ...gameState.player1,
+        dollars: gameState.currentPlayer === 'player1' 
+          ? gameState.player1.dollars - 1 
+          : gameState.player1.dollars
       },
-      catPlayer: {
-        ...gameState.catPlayer,
-        dollars: gameState.currentPlayer === 'cat' 
-          ? gameState.catPlayer.dollars - 1 
-          : gameState.catPlayer.dollars
+      player2: {
+        ...gameState.player2,
+        dollars: gameState.currentPlayer === 'player2' 
+          ? gameState.player2.dollars - 1 
+          : gameState.player2.dollars
       },
       connectedSquares: null
     };
@@ -98,7 +101,7 @@ export const useGameState = () => {
       newBoard, 
       row, 
       col, 
-      gameState.currentPlayer
+      currentPlayerState.emoji
     );
     
     if (connectedSquares) {
@@ -111,23 +114,23 @@ export const useGameState = () => {
       updatedGameState = {
         ...updatedGameState,
         connectedSquares,
-        dogPlayer: {
-          ...updatedGameState.dogPlayer,
-          dollars: gameState.currentPlayer === 'dog' 
-            ? updatedGameState.dogPlayer.dollars + REWARD_DOLLARS 
-            : updatedGameState.dogPlayer.dollars,
-          stars: gameState.currentPlayer === 'dog' 
-            ? updatedGameState.dogPlayer.stars + 1 
-            : updatedGameState.dogPlayer.stars
+        player1: {
+          ...updatedGameState.player1,
+          dollars: gameState.currentPlayer === 'player1' 
+            ? updatedGameState.player1.dollars + REWARD_DOLLARS 
+            : updatedGameState.player1.dollars,
+          stars: gameState.currentPlayer === 'player1' 
+            ? updatedGameState.player1.stars + 1 
+            : updatedGameState.player1.stars
         },
-        catPlayer: {
-          ...updatedGameState.catPlayer,
-          dollars: gameState.currentPlayer === 'cat' 
-            ? updatedGameState.catPlayer.dollars + REWARD_DOLLARS 
-            : updatedGameState.catPlayer.dollars,
-          stars: gameState.currentPlayer === 'cat' 
-            ? updatedGameState.catPlayer.stars + 1 
-            : updatedGameState.catPlayer.stars
+        player2: {
+          ...updatedGameState.player2,
+          dollars: gameState.currentPlayer === 'player2' 
+            ? updatedGameState.player2.dollars + REWARD_DOLLARS 
+            : updatedGameState.player2.dollars,
+          stars: gameState.currentPlayer === 'player2' 
+            ? updatedGameState.player2.stars + 1 
+            : updatedGameState.player2.stars
         }
       };
     }
@@ -142,7 +145,7 @@ export const useGameState = () => {
     
     updatedGameState = {
       ...updatedGameState,
-      currentPlayer: gameState.currentPlayer === 'dog' ? 'cat' : 'dog'
+      currentPlayer: gameState.currentPlayer === 'player1' ? 'player2' : 'player1'
     };
     
     updatedGameState = checkGameOver(updatedGameState);
@@ -174,11 +177,11 @@ export const useGameState = () => {
     if (
       gameState &&
       !gameState.gameOver &&
-      ((gameState.currentPlayer === 'dog' && gameState.dogPlayer.isAI) ||
-       (gameState.currentPlayer === 'cat' && gameState.catPlayer.isAI))
+      ((gameState.currentPlayer === 'player1' && gameState.player1.isAI) ||
+       (gameState.currentPlayer === 'player2' && gameState.player2.isAI))
     ) {
       const timerRef = setTimeout(() => {
-        const [row, col] = getAIMove(gameState.board, gameState.currentPlayer);
+        const [row, col] = getAIMove(gameState.board, gameState[gameState.currentPlayer].emoji);
         handleMove(row, col);
       }, 1000);
       
