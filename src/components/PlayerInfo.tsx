@@ -8,6 +8,10 @@ interface PlayerInfoProps {
 }
 
 const PlayerInfo: React.FC<PlayerInfoProps> = ({ player, isCurrentPlayer }) => {
+  if (!player) {
+    return null;
+  }
+
   return (
     <div className={`bg-white/90 backdrop-blur p-4 rounded-lg shadow-md 
       ${isCurrentPlayer ? 'ring-4 ring-green-500 transform scale-105' : ''} 

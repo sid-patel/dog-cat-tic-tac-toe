@@ -17,11 +17,15 @@ const GameStatus: React.FC<GameStatusProps> = ({
   soundEnabled, 
   onToggleSound 
 }) => {
+  if (!gameState) {
+    return null;
+  }
+
   const { currentPlayer, gameOver, winner } = gameState;
   
   const currentPlayerName = currentPlayer === 'player1' 
-    ? gameState.player1.name 
-    : gameState.player2.name;
+    ? gameState.player1?.name 
+    : gameState.player2?.name;
     
   const renderStatusMessage = () => {
     if (gameOver) {
@@ -36,6 +40,10 @@ const GameStatus: React.FC<GameStatusProps> = ({
       
       const winnerPlayer = winner === 'player1' ? gameState.player1 : gameState.player2;
       
+      if (!winnerPlayer) {
+        return null;
+      }
+      
       return (
         <div className="text-center mb-4">
           <p className="text-xl font-bold mb-2 text-amber-100">
@@ -46,6 +54,10 @@ const GameStatus: React.FC<GameStatusProps> = ({
           </div>
         </div>
       );
+    }
+    
+    if (!gameState[currentPlayer]) {
+      return null;
     }
     
     return (
