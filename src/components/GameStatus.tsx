@@ -1,5 +1,5 @@
 import React from 'react';
-import { GameState, Player } from '../types';
+import { GameState } from '../types';
 import { Volume2, VolumeX, Home } from 'lucide-react';
 
 interface GameStatusProps {
@@ -10,10 +10,6 @@ interface GameStatusProps {
   onToggleSound: () => void;
 }
 
-// Updated dog winner GIF URL
-const DOG_WINNER_GIF = "http://dl5.glitter-graphics.net/pub/3708/3708335ivth24bk2y.gif";
-const CAT_WINNER_GIF = "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdHNzejJ1YXF2MDA5am1hcWpjOG9scGFkdXo3ZjZjaDRsczJlbnUzbyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/aPAvJNgLDQL8qBSuxl/giphy.gif";
-
 const GameStatus: React.FC<GameStatusProps> = ({ 
   gameState, 
   onReset, 
@@ -23,47 +19,39 @@ const GameStatus: React.FC<GameStatusProps> = ({
 }) => {
   const { currentPlayer, gameOver, winner } = gameState;
   
-  const currentPlayerName = currentPlayer === 'dog' 
-    ? gameState.dogPlayer.name 
-    : gameState.catPlayer.name;
+  const currentPlayerName = currentPlayer === 'player1' 
+    ? gameState.player1.name 
+    : gameState.player2.name;
     
   const renderStatusMessage = () => {
     if (gameOver) {
       if (winner === 'tie') {
         return (
           <div className="text-center mb-4">
-            <p className="text-xl font-bold mb-2">It's a tie!</p>
-            <p className="text-gray-700">Both players get 10 bonus dollars!</p>
+            <p className="text-xl font-bold mb-2 text-amber-100">It's a tie!</p>
+            <p className="text-amber-200">Both players get 10 bonus dollars!</p>
           </div>
         );
       }
       
-      const winnerName = winner === 'dog' 
-        ? gameState.dogPlayer.name 
-        : gameState.catPlayer.name;
-        
-      const winnerEmoji = winner === 'dog' ? '🐶' : '🐱';
+      const winnerPlayer = winner === 'player1' ? gameState.player1 : gameState.player2;
       
       return (
         <div className="text-center mb-4">
-          <p className="text-xl font-bold mb-2">
-            {winnerEmoji} {winnerName} wins! {winnerEmoji}
+          <p className="text-xl font-bold mb-2 text-amber-100">
+            {winnerPlayer.emoji} {winnerPlayer.name} wins! {winnerPlayer.emoji}
           </p>
-          <div className="w-full max-w-xs mx-auto my-4">
-            <img 
-              src={winner === 'dog' ? DOG_WINNER_GIF : CAT_WINNER_GIF} 
-              alt={`${winnerName} wins!`}
-              className="w-full h-auto rounded-lg shadow-md"
-            />
+          <div className="text-6xl animate-bounce text-center my-4">
+            {winnerPlayer.emoji}
           </div>
         </div>
       );
     }
     
     return (
-      <p className="text-center text-lg font-medium mb-4">
-        Current turn: {currentPlayer === 'dog' ? '🐶' : '🐱'} {currentPlayerName}
-        {gameState[`${currentPlayer}Player`].isAI && ' (AI)'}
+      <p className="text-center text-lg font-medium mb-4 text-amber-100">
+        Current turn: {gameState[currentPlayer].emoji} {currentPlayerName}
+        {gameState[currentPlayer].isAI && ' (AI)'}
       </p>
     );
   };
@@ -76,7 +64,7 @@ const GameStatus: React.FC<GameStatusProps> = ({
         {gameOver && (
           <button
             onClick={onReset}
-            className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition-colors"
           >
             Play Again
           </button>
@@ -84,7 +72,7 @@ const GameStatus: React.FC<GameStatusProps> = ({
         
         <button
           onClick={onEndGame}
-          className="px-4 py-2 bg-gray-600 text-white font-medium rounded-md hover:bg-gray-700 transition-colors"
+          className="px-4 py-2 bg-amber-800/80 text-white font-medium rounded-md hover:bg-amber-900/80 transition-colors"
         >
           <Home size={20} className="inline-block mr-2" />
           End Game
@@ -92,10 +80,10 @@ const GameStatus: React.FC<GameStatusProps> = ({
         
         <button
           onClick={onToggleSound}
-          className="p-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
+          className="p-2 bg-amber-800/80 rounded-full hover:bg-amber-900/80 transition-colors"
           aria-label={soundEnabled ? "Disable sound" : "Enable sound"}
         >
-          {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+          {soundEnabled ? <Volume2 size={20} className="text-white" /> : <VolumeX size={20} className="text-white" />}
         </button>
       </div>
     </div>
