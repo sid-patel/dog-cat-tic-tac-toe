@@ -11,20 +11,15 @@ const Square: React.FC<SquareProps> = ({ value, onClick, highlight = false }) =>
   return (
     <button
       className={`w-full h-full aspect-square flex items-center justify-center text-2xl md:text-4xl 
-        font-bold transition-all duration-200 border border-gray-300 active:bg-gray-200
-        ${highlight ? 'bg-yellow-200 animate-pulse' : 'bg-white hover:bg-gray-100'}
+        font-bold transition-all duration-200 border border-amber-800/30
+        ${highlight ? 'bg-yellow-200/90 animate-pulse' : 'bg-amber-50/90 hover:bg-amber-100/90'}
         ${value ? 'cursor-default' : 'cursor-pointer touch-manipulation'}`}
       onClick={onClick}
       disabled={value !== null}
     >
-      {value === 'dog' && (
+      {value && (
         <span className={`transform transition-transform duration-300 ${highlight ? 'scale-150' : 'scale-125'}`}>
-          🐶
-        </span>
-      )}
-      {value === 'cat' && (
-        <span className={`transform transition-transform duration-300 ${highlight ? 'scale-150' : 'scale-125'}`}>
-          🐱
+          {value}
         </span>
       )}
     </button>

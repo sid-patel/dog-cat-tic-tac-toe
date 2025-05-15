@@ -14,7 +14,7 @@ const Board: React.FC<BoardProps> = ({ board, onSquareClick, connectedSquares })
   };
 
   return (
-    <div className="grid grid-cols-5 gap-1 bg-blue-100 p-2 rounded-lg shadow-md w-full max-w-md mx-auto">
+    <div className="grid grid-cols-5 gap-1 bg-[url('https://images.pexels.com/photos/172289/pexels-photo-172289.jpeg')] bg-cover bg-center p-3 rounded-xl shadow-xl border-8 border-amber-900/60 w-full max-w-md mx-auto">
       {board.map((row, rowIndex) => (
         row.map((square, colIndex) => (
           <Square
